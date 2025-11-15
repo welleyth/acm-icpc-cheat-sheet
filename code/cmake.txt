@@ -1,0 +1,24 @@
+cmake_minimum_required(VERSION 3.26)
+project(CF)
+
+set(CMAKE_CXX_COMPILER clang++)
+set(CMAKE_C_COMPILER clang)
+
+set(SANITIZATION_OPTIONS "-fsanitize=address,undefined,float-divide-by-zero,local-bounds,nullability,implicit-conversion")
+add_compile_options(${SANITIZATION_OPTIONS})
+add_link_options(${SANITIZATION_OPTIONS})
+
+set(CMAKE_CXX_STANDARD 20)
+
+add_compile_definitions(LOCAL)
+
+include_directories(.)
+set(BUILD_SHARED_LIBS OFF)
+
+add_executable(CF main.cpp)
+add_executable(brute brute.cpp)
+add_executable(gen gen.cpp)
+
+
+cmake -B cmake-build-debug -S .
+cmake --build cmake-build-debug -j 16 --target ' {CF/...}
