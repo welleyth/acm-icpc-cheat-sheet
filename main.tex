@@ -277,6 +277,10 @@ $mod = c \cdot 2^k + 1 \rightarrow root = (primitive)^c$
 \lstinputlisting{code/motao-algorithm.cpp}
 \subsection{Cyclic LCS}
 \lstinputlisting{code/cyclic-longest-common-subsequence.cpp}
+\subsection{Sequence Guessing Framework}
+\noindent
+Finite-difference binomial basis, Lagrange interpolation, Berlekamp--Massey, and Kitamasa-style recurrence exponentiation in one place for quickly extrapolating integer sequences (mod prime).
+\lstinputlisting{code/sequence-guess.cpp}
 \section{Tips}
 \subsection{Useful Codes}
 \begin{itemize}
@@ -387,6 +391,21 @@ c+(1-c)A_x^2 & (1-c)A_xA_y-sA_z & (1-c)A_xA_z+sA_y \\
 \end{bmatrix}
 \end{gather*}
 \subsubsection{Math}
+\paragraph{$\blacksquare$ Guessing sequence formulas}
+\noindent \\
+Given $a_0, a_1, \dots, a_m$, first build the finite-difference table: $\Delta a_i = a_{i+1}-a_i$, $\Delta^2 a_i = \Delta a_{i+1}-\Delta a_i$, etc. If the $k$-th difference row is constant (and higher rows are $0$), then $a_n$ is a polynomial in $n$ of degree $k$. In that case one convenient form is
+\[
+a_n = \sum_{j=0}^{k} c_j \binom{n}{j},
+\]
+where $c_j = \Delta^j a_0$ (the first entry of the $j$-th difference row). This gives an explicit polynomial formula for all $n$ (do all operations modulo $p$ if working mod a prime).\\
+If differences do not stabilize at low order, try to fit a linear recurrence
+\[
+a_n = c_1 a_{n-1} + c_2 a_{n-2} + \dots + c_k a_{n-k}
+\]
+by solving a small linear system for $c_i$ using consecutive terms. Over a field (e.g.\ mod prime $p$), Berlekamp--Massey recovers the shortest such recurrence in $O(m^2)$ from $m$ terms. Once the recurrence is known, the $n$-th term can be computed in $O(k^3\log n)$ with matrix exponentiation or specialized linear-recurrence exponentiation.
+\paragraph{$\blacksquare$ Exotic bases and special numbers}
+\noindent \\
+When the closed form is known to involve Stirling/Bell/Eulerian numbers or other basis sequences $b_k(n)$, treat $\{b_k(n)\}$ exactly like binomial coefficients: assume $a_n = \sum_{k} \alpha_k b_k(n)$, plug the first $|k|$ samples into a linear system, and solve for $\alpha_k$. The same recurrence machinery still works: once Berlekamp--Massey gives the minimal linear recurrence, the sequence is determined regardless of whether the closed form features Stirling numbers or not. Recognizing the special basis is mostly for human interpretation; for computation it suffices to keep either the binomial-basis polynomial or the linear recurrence (see `code/sequence-guess.cpp` for an implementation that exposes both approaches).
 \paragraph{$\blacksquare$ Sums}
 \begin{eqnarray*}
 && 1+2+\ldots +n=\frac{n^2}{2}+\frac{n}{2} \\
